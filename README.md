@@ -7,7 +7,7 @@ All credit and glory for this project goes to [Jonathan Walker](https://github.c
 - Recursively retrieves all links within them
 - Ignores all URLs included in the sitemaps that do not include `cloud.google.com`
 - Ignores all non https links
-<!-- - Avoids most AWS SDK documentation -->
+- Avoids most non-product documentation such as docs for `java`, `ruby` and `architecture` specific pages.
 - Supports both outputting as warc or html file formats
 - Saves all files by `gcp_warcs/` or `gcp_html/` and `YYYY/MM/DD/cloud.google.com/docs/compute/index.warc`
 
@@ -43,7 +43,6 @@ $ rg "gs://google-cloud-" .
 ## To Do
 
 - Exlude non-english documentation pages
-- Only pull pages under the `/docs` path.
 
 ## Acknowledgements
 

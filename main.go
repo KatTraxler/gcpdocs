@@ -37,7 +37,7 @@ var (
 	}
 )
 
-// List of SDKs to exclude
+// List of pages to exclude.  Mainly code bases and non-documentation pages
 var sdkExclusions = []string{
 	"java",
 	"python",
@@ -45,6 +45,17 @@ var sdkExclusions = []string{
 	"nodejs",
 	"dotnet",
 	"ruby",
+	"sql",
+	"sorry",
+	"customers",
+	"migrate",
+	"architecture",
+	"distributed-cloud",
+	"go",
+	"financial-services",
+	"immersive-stream",
+	"media-cdn",
+	"web-risk",
 }
 
 // List of Languages to Exclude
@@ -65,6 +76,8 @@ var sdkExclusions = []string{
 
 var excludeRegex *regexp.Regexp
 
+var docsPathRegex *regexp.Regexp
+
 func init() {
 	// Prepare the list of SDKs for regex
 	escapedSDKs := make([]string, len(sdkExclusions))
@@ -73,7 +86,7 @@ func init() {
 	}
 
 	// Build the regex pattern
-	pattern := fmt.Sprintf(`https://cloud\.google\.com/(?:[a-z]{2}_[a-z]{2}|cdk|%s)/`, strings.Join(escapedSDKs, "|"))
+	pattern := fmt.Sprintf(`https://cloud\.google\.com/(?:[a-z]{2}_[a-z]{2}|%s)/`, strings.Join(escapedSDKs, "|"))
 
 	excludeRegex = regexp.MustCompile(pattern)
 
