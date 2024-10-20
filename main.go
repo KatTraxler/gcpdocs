@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	sitemapURL         = "https://docs.aws.amazon.com/sitemap_index.xml"
+	sitemapURL         = "https://cloud.google.com/sitemap.xml"
 	rateLimitDelay     = 2 * time.Second // Delay between each request to prevent rate limiting
 	maxBackoffAttempts = 5               // Maximum number of backoff attempts before giving up
 	sleepDuration      = 3 * time.Second // Time to sleep on rate limit detection or failure
@@ -33,7 +33,7 @@ const (
 var (
 	rateLimitEnabled bool // Global flag for rate limiting
 	userAgents       = []string{
-		"awsdocs/v0.1 (+https://github.com/SecurityRunners/aws-docs)",
+		"gcpdocs/v0.1 (+https://github.com/KatTraxler/gcpdocs)",
 	}
 )
 
@@ -79,7 +79,7 @@ func init() {
 	}
 
 	// Build the regex pattern
-	pattern := fmt.Sprintf(`https://docs\.aws\.amazon\.com/(?:[a-z]{2}_[a-z]{2}|cdk|%s)/`, strings.Join(escapedSDKs, "|"))
+	pattern := fmt.Sprintf(`https://cloud\.google\/docs\.com/(?:[a-z]{2}_[a-z]{2}|cdk|%s)/`, strings.Join(escapedSDKs, "|"))
 
 	excludeRegex = regexp.MustCompile(pattern)
 }
@@ -128,7 +128,7 @@ func main() {
 		log.SetOutput(os.Stdout)
 	}
 
-	log.Println("Starting AWS documentation scraping")
+	log.Println("Starting GCP documentation scraping")
 
 	urlChannel := make(chan string)
 	var wg sync.WaitGroup
@@ -179,8 +179,8 @@ func fetchAndParseSitemap(sitemapURL string, maxDocs int, urlChannel chan<- stri
 		return err
 	}
 
-	// Ensure the sitemap URL is under docs.aws.amazon.com
-	if parsedURL.Host != "docs.aws.amazon.com" {
+	// Ensure the sitemap URL is under cloud.google.com
+	if parsedURL.Host != "cloud.google.com" {
 		log.Printf("Skipping sitemap from other domain: %s", sitemapURL)
 		return nil
 	}
@@ -234,8 +234,8 @@ func fetchAndParseSitemap(sitemapURL string, maxDocs int, urlChannel chan<- stri
 				continue
 			}
 
-			// Ensure the URL is under docs.aws.amazon.com
-			if parsedURL.Host != "docs.aws.amazon.com" {
+			// Ensure the URL is under cloud.google.com
+			if parsedURL.Host != "cloud.google.com" {
 				log.Printf("Skipping URL from other domain: %s", urlEntry.Loc)
 				continue
 			}
@@ -319,7 +319,7 @@ func downloadAndSaveAsWARC(url string) {
 	now := time.Now()
 	datePath := filepath.Join(
 		// Adding year, month, and day to the directory path
-		"aws_warcs",
+		"gcp_warcs",
 		now.Format("2006"), // Year
 		now.Format("01"),   // Month
 		now.Format("02"),   // Day
@@ -407,7 +407,7 @@ func downloadAndSaveAsHTML(url string) {
 	now := time.Now()
 	datePath := filepath.Join(
 		// Adding year, month, and day to the directory path
-		"aws_html",
+		"gcp_html",
 		now.Format("2006"), // Year
 		now.Format("01"),   // Month
 		now.Format("02"),   // Day

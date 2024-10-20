@@ -1,18 +1,18 @@
-# AWSDocs Archive
+# GCPDocs Archive
 
-This tool allows you to be able to retrieve all documentation for AWS providing you with a local copy you can archive, search, and diff for security research. I used this repository to create a Bedrock Knowledge Base for querying with AI.
+This tool allows you to be able to retrieve all documentation for GCP providing you with a local copy you can archive, search, and diff for security research. I used this repository to create a Bedrock Knowledge Base for querying with AI.
 
 - Retrieves all sitemap.xml files
 - Recursively retrieves all links within them
-- Ignores all URLs included in the sitemaps that do not include `docs.aws.amazon.com`
+- Ignores all URLs included in the sitemaps that do not include `cloud.google.com`
 - Ignores all non https links
-- Avoids most AWS SDK documentation
+<!-- - Avoids most AWS SDK documentation -->
 - Supports both outputting as warc or html file formats
-- Saves all files by `aws_warcs/` or `aws_html/` and `YYYY/MM/DD/docs.aws.amazon.com/ec2/index.warc`
+- Saves all files by `gcp_warcs/` or `gcp_html/` and `YYYY/MM/DD/cloud.google.com/docs/compute/index.warc`
 
 ## Usage
 
-The following command allows you to be able to retrieve all the documentation in `aws_warcs/YYYY/MM/DD`.
+The following command allows you to be able to retrieve all the documentation in `gcp_warcs/YYYY/MM/DD`.
 
 ```bash
 awsdocs --rate-limit --workers 15 -logfile=awsdocs.log
@@ -27,7 +27,7 @@ One thing I discovered as part of this project was [ripgrep](https://github.com/
 To search for a specific string and retrieve all AWS Documentation urls containing that string you can use a combination of ripgrep and xargs to do so. 
 
 ```bash
-$ cd 2024/09/26/docs.aws.amazon.com
+$ cd 2024/09/26/cloud.google.com
 $ rg "s3://amzn-s3-demo-bucket-" . -l | xargs -I {} rg "Warc-Target-Uri" {} | awk '{print $2}' | sort | uniq
 https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Synthetics_Canaries_WritingCanary_Nodejs.html
 https://docs.aws.amazon.com/athena/latest/ug/tables-location-format.html
