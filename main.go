@@ -39,35 +39,29 @@ var (
 
 // List of SDKs to exclude
 var sdkExclusions = []string{
-	"AWSJavaSDK",
-	"AWSJavaScriptSDK",
-	"CDI-SDK",
-	"aws-sdk-php",
-	"chime-sdk",
-	"database-encryption-sdk",
-	"embedded-csdk",
-	"encryption-sdk",
-	"pythonsdk",
-	"sdk-for-android",
-	"sdk-for-cpp",
-	"sdk-for-go",
-	"sdk-for-ios",
-	"sdk-for-java",
-	"sdk-for-javascript",
-	"sdk-for-kotlin",
-	"sdk-for-net",
-	"sdk-for-php",
-	"sdk-for-php1",
-	"sdk-for-ruby",
-	"sdk-for-rust",
-	"sdk-for-sapabap",
-	"sdk-for-swift",
-	"sdk-for-unity",
-	"sdkfornet",
-	"sdkfornet1",
-	"sdkref",
-	"xray-sdk-for-java",
+	"java",
+	"python",
+	"php",
+	"nodejs",
+	"dotnet",
+	"ruby",
 }
+
+// List of Languages to Exclude
+// var languageExclusions = []string{
+// 	"es",
+// 	"de",
+// 	"ja",
+// 	"zh-CN",
+// 	"fr",
+// 	"it",
+// 	"es",
+// 	"pt-BR",
+// 	"es-419",
+// 	"ko",
+// 	"id",
+// 	"it",
+// }
 
 var excludeRegex *regexp.Regexp
 
@@ -79,9 +73,10 @@ func init() {
 	}
 
 	// Build the regex pattern
-	pattern := fmt.Sprintf(`https://cloud\.google\/docs\.com/(?:[a-z]{2}_[a-z]{2}|cdk|%s)/`, strings.Join(escapedSDKs, "|"))
+	pattern := fmt.Sprintf(`https://cloud\.google\.com/(?:[a-z]{2}_[a-z]{2}|cdk|%s)/`, strings.Join(escapedSDKs, "|"))
 
 	excludeRegex = regexp.MustCompile(pattern)
+
 }
 
 // SitemapIndex represents the structure of the sitemap index XML.
@@ -179,9 +174,9 @@ func fetchAndParseSitemap(sitemapURL string, maxDocs int, urlChannel chan<- stri
 		return err
 	}
 
-	// Ensure the sitemap URL is under cloud.google.com
+	// Ensure the the URL a part of Google Cloud
 	if parsedURL.Host != "cloud.google.com" {
-		log.Printf("Skipping sitemap from other domain: %s", sitemapURL)
+		log.Printf("Skipping page, not Google Cloud Domain: %s", sitemapURL)
 		return nil
 	}
 
@@ -263,6 +258,7 @@ func fetchAndParseSitemap(sitemapURL string, maxDocs int, urlChannel chan<- stri
 
 // fetchWithRateLimitHandling fetches the document from the given URL and handles 403 rate limiting or connection errors.
 func fetchWithRateLimitHandling(url string) (*http.Response, error) {
+
 	maxRetries := 5
 	for retries := 0; retries < maxRetries; retries++ {
 		// Randomly select a user agent from the list
