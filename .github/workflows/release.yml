@@ -29,5 +29,5 @@ jobs:
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         goversion: "https://go.dev/dl/go1.23.2.linux-amd64.tar.gz"
-        binary_name: "awsdocs"
+        binary_name: "gcpdocs"
         extra_files: README.md
