@@ -1,4 +1,4 @@
-module awsdocs
+module gcpdocs
 
 go 1.22.5
 
