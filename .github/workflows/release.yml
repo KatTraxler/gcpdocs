@@ -1,16 +1,25 @@
 name: Release Go Binary
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
     contents: write
     packages: write
 
+env:
+  PROJECT_ID: 'gcpdocs' 
+  REGION: 'us-central1'
+  JOB: 'gcpdocs'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/506053712025/locations/global/workloadIdentityPools/github/providers/gcpdocs-repo'
+
 jobs:
-  releases-matrix:
-    name: Release Go Binary
+
+  build:
+    name: Build Go Binary
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,13 +30,38 @@ jobs:
             goos: darwin
           - goarch: arm64
             goos: windows
+
+# Checkout source code
     steps:
     - uses: actions/checkout@v4
-    - uses: wangyoucao577/go-release-action@v1
+
+# Set up Go
+    - name: Set up Go
+      uses: actions/setup-go@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        goversion: "https://go.dev/dl/go1.23.2.linux-amd64.tar.gz"
-        binary_name: "gcpdocs"
-        extra_files: README.md
+        go-version: '1.20'
+
+# Build Go App
+    - name: Build
+      run:  go build -C ../../ main.go
+
+## Authenticate to Google CLoud      
+    - name: Google Auth
+      id: auth
+      uses: 'google-github-actions/auth@v0'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/506053712025/locations/global/workloadIdentityPools/github/providers/gcpdocs-repo
+
+      # Authenticate Docker to Google Cloud Artifact Registry
+    - name: Docker Auth
+      id: docker-auth
+      uses: 'docker/login-action@v1'
+      with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.access_token }}'
+          registry: '${{ env.REGION }}-docker.pkg.dev'
+
+    - name: Push Container
+      run: |-
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.JOB }}/${{ env.JOB }}"

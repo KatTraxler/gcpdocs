@@ -46,6 +46,8 @@ var sdkExclusions = []string{
 	"dotnet",
 	"ruby",
 	"sql",
+	"cpp",
+	"mysql",
 	"sorry",
 	"customers",
 	"migrate",
@@ -56,6 +58,8 @@ var sdkExclusions = []string{
 	"immersive-stream",
 	"media-cdn",
 	"web-risk",
+	"resources",
+	"terms",
 }
 
 // List of Languages to Exclude
@@ -75,8 +79,6 @@ var sdkExclusions = []string{
 // }
 
 var excludeRegex *regexp.Regexp
-
-var docsPathRegex *regexp.Regexp
 
 func init() {
 	// Prepare the list of SDKs for regex
