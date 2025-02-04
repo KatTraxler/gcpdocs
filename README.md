@@ -16,7 +16,7 @@ All credit and glory for this project goes to [Jonathan Walker](https://github.c
 The following command allows you to be able to retrieve all the documentation in `gcp_warcs/YYYY/MM/DD`.
 
 ```bash
-gcpdocs --rate-limit --workers 15 -logfile=awsdocs.log
+gcpdocs --rate-limit --workers 15 -logfile=gcpdocs.log
 ```
 
 ## Searching
