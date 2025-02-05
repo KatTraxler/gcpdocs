@@ -1,20 +1,16 @@
 name: Release Go Binary
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: workflow_dispatch
 
-permissions:
-    contents: write
-    packages: write
+# permissions:
+#     contents: write
+#     packages: write
 
-env:
-  PROJECT_ID: 'gcpdocs' 
-  REGION: 'us-central1'
-  JOB: 'gcpdocs'
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/506053712025/locations/global/workloadIdentityPools/github/providers/gcpdocs-repo'
+# env:
+#   PROJECT_ID: 'gcpdocs' 
+#   REGION: 'us-central1'
+#   JOB: 'gcpdocs'
+#   WORKLOAD_IDENTITY_PROVIDER: 'projects/506053712025/locations/global/workloadIdentityPools/github/providers/gcpdocs-repo'
 
 jobs:
 
@@ -25,12 +21,8 @@ jobs:
       matrix:
         goos: [linux, windows, darwin]
         goarch: ["386", amd64, arm64]
-        exclude:
-          - goarch: "386"
-            goos: darwin
-          - goarch: arm64
-            goos: windows
-
+        go-version: [ '1.19', '1.20', '1.21.x', '1.22.x' ]
+  
 # Checkout source code
     steps:
     - uses: actions/checkout@v4
@@ -39,29 +31,30 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.20'
+        go-version:  ${{ matrix.go-version }}
+        cache-dependency-path: ../../go.sum
 
 # Build Go App
     - name: Build
-      run:  go build -C ../../ main.go
+      run:  go build -C ../../main.go
 
-## Authenticate to Google CLoud      
-    - name: Google Auth
-      id: auth
-      uses: 'google-github-actions/auth@v0'
-      with:
-        token_format: 'access_token'
-        workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/506053712025/locations/global/workloadIdentityPools/github/providers/gcpdocs-repo
+# ## Authenticate to Google CLoud      
+#     - name: Google Auth
+#       id: auth
+#       uses: 'google-github-actions/auth@v0'
+#       with:
+#         token_format: 'access_token'
+#         workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/506053712025/locations/global/workloadIdentityPools/github/providers/gcpdocs-repo
 
-      # Authenticate Docker to Google Cloud Artifact Registry
-    - name: Docker Auth
-      id: docker-auth
-      uses: 'docker/login-action@v1'
-      with:
-          username: 'oauth2accesstoken'
-          password: '${{ steps.auth.outputs.access_token }}'
-          registry: '${{ env.REGION }}-docker.pkg.dev'
+#       # Authenticate Docker to Google Cloud Artifact Registry
+#     - name: Docker Auth
+#       id: docker-auth
+#       uses: 'docker/login-action@v1'
+#       with:
+#           username: 'oauth2accesstoken'
+#           password: '${{ steps.auth.outputs.access_token }}'
+#           registry: '${{ env.REGION }}-docker.pkg.dev'
 
-    - name: Push Container
-      run: |-
-          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.JOB }}/${{ env.JOB }}"
+#     - name: Push Container
+#       run: |-
+#           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.JOB }}/${{ env.JOB }}"
