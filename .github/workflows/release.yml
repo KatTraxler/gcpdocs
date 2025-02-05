@@ -30,11 +30,11 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version:  ${{ matrix.go-version }}
-        cache-dependency-path: ../../go.sum
+        cache-dependency-path: ./go.sum
 
 # Build Go App
     - name: Build
-      run:  go build -C ../../main.go
+      run:  go build -C ./main.go
 
 # ## Authenticate to Google CLoud      
 #     - name: Google Auth
