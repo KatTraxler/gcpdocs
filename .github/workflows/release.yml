@@ -34,7 +34,7 @@ jobs:
 
 # Build Go App
     - name: Build
-      run:  go build -C ./main.go
+      run:  go build main.go
 
 # ## Authenticate to Google CLoud      
 #     - name: Google Auth
