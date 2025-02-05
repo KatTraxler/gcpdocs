@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.22.x' ]
+        go-version: [ '1.22.5' ]
   
 # Checkout source code
     steps:
