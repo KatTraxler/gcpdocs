@@ -60,37 +60,59 @@ var sdkExclusions = []string{
 	"web-risk",
 	"resources",
 	"terms",
+	"pricing",
+	"executive-insights",
+	"innovators",
+	"partners",
+	"sustainability",
+	"skus",
+	"retail",
+	"billing-questions",
+	"docs?",
+	"hl=",
 }
 
 // List of Languages to Exclude
-// var languageExclusions = []string{
-// 	"es",
-// 	"de",
-// 	"ja",
-// 	"zh-CN",
-// 	"fr",
-// 	"it",
-// 	"es",
-// 	"pt-BR",
-// 	"es-419",
-// 	"ko",
-// 	"id",
-// 	"it",
-// }
+var languageExclusions = []string{
+	"es",
+	"de",
+	"ja",
+	"zh-CN",
+	"fr",
+	"it",
+	"es",
+	"pt-BR",
+	"es-419",
+	"ko",
+	"id",
+	"it",
+}
 
 var excludeRegex *regexp.Regexp
+var excludedLangRegex *regexp.Regexp
 
 func init() {
-	// Prepare the list of SDKs for regex
+	// Prepare the list of URL paths to escape
 	escapedSDKs := make([]string, len(sdkExclusions))
 	for i, sdk := range sdkExclusions {
 		escapedSDKs[i] = regexp.QuoteMeta(sdk)
 	}
 
-	// Build the regex pattern
+	// Prepare the list of languages to escape
+	escapedLangs := make([]string, len(languageExclusions))
+	for i, lang := range languageExclusions {
+		escapedLangs[i] = regexp.QuoteMeta(lang)
+	}
+
+	// Build the regex pattern for escaped paths
 	pattern := fmt.Sprintf(`https://cloud\.google\.com/(?:[a-z]{2}_[a-z]{2}|%s)/`, strings.Join(escapedSDKs, "|"))
 
 	excludeRegex = regexp.MustCompile(pattern)
+
+	// Build the regex pattern for excluded / escaped languages
+	langPattern := fmt.Sprintf(`(?i)hl=(?:%s)(?:&|$)`, strings.Join(escapedLangs, "|"))
+
+	excludedLangRegex = regexp.MustCompile(langPattern)
 
 }
 
@@ -200,6 +222,11 @@ func fetchAndParseSitemap(sitemapURL string, maxDocs int, urlChannel chan<- stri
 		log.Printf("Skipping excluded sitemap: %s", sitemapURL)
 		return nil
 	}
+	// Exclude if matches excludedLangRegex
+	if excludedLangRegex.MatchString(sitemapURL) {
+		log.Printf("Skipping excluded sitemap: %s", sitemapURL)
+		return nil
+	}
 
 	log.Printf("Fetching sitemap: %s", sitemapURL)
 	resp, err := fetchWithRateLimitHandling(sitemapURL)
@@ -252,6 +279,12 @@ func fetchAndParseSitemap(sitemapURL string, maxDocs int, urlChannel chan<- stri
 
 			// Check if the URL matches the exclusion pattern
 			if excludeRegex.MatchString(urlEntry.Loc) {
+				log.Printf("Skipping excluded URL: %s", urlEntry.Loc)
+				continue
+			}
+
+			// Check if the URL matches the language exclusion pattern
+			if excludedLangRegex.MatchString(urlEntry.Loc) {
 				log.Printf("Skipping excluded URL: %s", urlEntry.Loc)
 				continue
 			}
